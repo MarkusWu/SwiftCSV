@@ -42,10 +42,21 @@ open class CSV {
     /// delimiter: character to split row and header fields by (default is ',')
     /// encoding: encoding used to read file (default is NSUTF8StringEncoding)
     /// loadColumns: whether to populate the columns dictionary (default is true)
-    public convenience init(name: String, delimiter: Character = comma, encoding: String.Encoding = String.Encoding.utf8, loadColumns: Bool = true) throws {
-        let contents = try String(contentsOfFile: name, encoding: encoding)
-    
-        self.init(string: contents, delimiter: delimiter, loadColumns: loadColumns)
+    public convenience init(name: String, bundle: Bundle = Bundle.main, delimiter: Character = comma, encoding: String.Encoding = String.Encoding.utf8, loadColumns: Bool = true) throws {
+        let tokens = name.components(separatedBy: ".")
+        var fileName = tokens[0]
+        var fileExtension = ""
+        
+        if tokens.count > 1 {
+            for i in 1..<tokens.count - 1 {
+                fileName = fileName + "." + tokens[i]
+            }
+            fileExtension = tokens.last!
+        }
+        
+        let csvURL = bundle.url(forResource: fileName, withExtension: fileExtension)!
+        
+        try self.init(url: csvURL, delimiter: delimiter, encoding: encoding, loadColumns: loadColumns)
     }
     
     /// Load a CSV file from a URL
